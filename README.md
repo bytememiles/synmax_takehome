@@ -6,9 +6,15 @@
 - From repo root:
 
 ```bash
+python -m venv .venv
 pip install -e ".[dev]"
 playwright install chromium
 ```
+
+**Windows (Command Prompt):** After creating `.venv`, you can use:
+
+- `venv_shell.bat` — double-click (or run once) to open a **new** window with the venv active.
+- `call venv_here.bat` — run from an **existing** prompt to activate in that window.
 
 ## Part 1: Scrape wells into SQLite
 

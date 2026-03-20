@@ -5,17 +5,24 @@ import pytest
 from synmax_takehome.models import WellRecord
 from synmax_takehome.scraping.parse import parse_well_html
 
-FIXTURE = Path(__file__).resolve().parent.parent / "content.html"
+WEB_PAGES = sorted(
+    (Path(__file__).resolve().parent.parent / "web_pages").glob("*.html")
+)
+KNOWN_API = "30-045-35432"
+KNOWN_FIXTURE = (
+    Path(__file__).resolve().parent.parent / "web_pages" / f"{KNOWN_API}.html"
+)
 
 
 @pytest.fixture(scope="module")
-def html() -> str:
-    return FIXTURE.read_text(encoding="utf-8")
+def known_html() -> str:
+    return KNOWN_FIXTURE.read_text(encoding="utf-8")
 
 
-def test_parse_fixture_matches_known_well(html: str) -> None:
-    row = parse_well_html(html, fallback_api="30-045-35432")
-    assert row["API"] == "30-045-35432"
+def test_parse_known_web_page_matches_known_well(known_html: str) -> None:
+    assert KNOWN_API in KNOWN_FIXTURE.stem
+    row = parse_well_html(known_html, fallback_api=KNOWN_API)
+    assert row["API"] == KNOWN_API
     assert row["Status"] == "Active"
     assert row["Well Type"] == "Oil"
     assert row["Work Type"] == "New"
@@ -36,8 +43,38 @@ def test_parse_fixture_matches_known_well(html: str) -> None:
     assert row["Operator"] and "DJR OPERATING" in row["Operator"]
 
 
-def test_well_record_validates_parsed_row(html: str) -> None:
-    row = parse_well_html(html, fallback_api="30-045-35432")
+def test_well_record_validates_parsed_known_row(known_html: str) -> None:
+    row = parse_well_html(known_html, fallback_api=KNOWN_API)
     rec = WellRecord.model_validate(row)
-    assert rec.API == "30-045-35432"
+    assert rec.API == KNOWN_API
     assert rec.to_db_row()["Well Type"] == "Oil"
+
+
+@pytest.mark.parametrize("html_path", WEB_PAGES, ids=lambda p: p.name)
+def test_parse_saved_web_pages_with_console_summary(html_path: Path) -> None:
+    row = parse_well_html(
+        html_path.read_text(encoding="utf-8"), fallback_api=html_path.stem
+    )
+    rec = WellRecord.model_validate(row)
+
+    # Printed when running with -s, gives quick confidence in parsed values.
+    print(
+        " | ".join(
+            [
+                f"file={html_path.name}",
+                f"api={rec.API}",
+                f"status={rec.Status}",
+                f"well_type={rec.Well_Type}",
+                f"operator={rec.Operator}",
+                f"lat={rec.Latitude}",
+                f"lon={rec.Longitude}",
+                f"crs={rec.CRS}",
+                f"spud={rec.Spud_Date}",
+                f"tvd={rec.TVD}",
+            ]
+        )
+    )
+
+    assert rec.API == html_path.stem
+    assert rec.Status is not None
+    assert rec.Operator is not None
