@@ -1,0 +1,2 @@
+# Install package in editable mode: pip install -e ".[dev]"
+# Or minimal: pip install -e .
