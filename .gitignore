@@ -15,3 +15,6 @@ build/
 
 # SQLite database
 sqlite.db
+
+# CSV files
+*.csv
