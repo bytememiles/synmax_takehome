@@ -12,9 +12,3 @@ build/
 
 # Cursor plans
 .cursor/plans/
-
-# SQLite database
-sqlite.db
-
-# CSV files
-*.csv
