@@ -41,18 +41,20 @@ synmax-load-wells --csv my_well_apis.csv --db sqlite.db --delay 0.75
 
 Options:
 
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--csv` | `apis_pythondev_test.csv` | Input CSV path (header row with `api` column) |
-| `--db` | `sqlite.db` (or `SYNMAX_SQLITE_PATH`) | SQLite database path |
-| `--delay` | `0.75` | Seconds between HTTP requests |
-| `--limit` | none | Process only first N rows (testing) |
-| `--headful` | off | Run browser with UI (overrides env; helps if Cloudflare Turnstile blocks headless) |
-| `--headless` | off | Force headless (overrides env) |
-| `--timeout` | see env | Playwright timeout (ms); default from `SYNMAX_PLAYWRIGHT_TIMEOUT_MS` |
-| `--user-data-dir` | see env | Chromium profile path; keeps cookies between wells (`SYNMAX_PLAYWRIGHT_USER_DATA_DIR`) |
-| `--channel` | see env | Installed browser channel: `chrome`, `msedge`, … (`SYNMAX_PLAYWRIGHT_CHANNEL`) |
-| `--no-reduce-automation` | off | Skip Playwright tweaks that hide automation hints (rarely needed) |
+
+| Flag                     | Default                               | Description                                                                            |
+| ------------------------ | ------------------------------------- | -------------------------------------------------------------------------------------- |
+| `--csv`                  | `apis_pythondev_test.csv`             | Input CSV path (header row with `api` column)                                          |
+| `--db`                   | `sqlite.db` (or `SYNMAX_SQLITE_PATH`) | SQLite database path                                                                   |
+| `--delay`                | `0.75`                                | Seconds between HTTP requests                                                          |
+| `--limit`                | none                                  | Process only first N rows (testing)                                                    |
+| `--headful`              | off                                   | Run browser with UI (overrides env; helps if Cloudflare Turnstile blocks headless)     |
+| `--headless`             | off                                   | Force headless (overrides env)                                                         |
+| `--timeout`              | see env                               | Playwright timeout (ms); default from `SYNMAX_PLAYWRIGHT_TIMEOUT_MS`                   |
+| `--user-data-dir`        | see env                               | Chromium profile path; keeps cookies between wells (`SYNMAX_PLAYWRIGHT_USER_DATA_DIR`) |
+| `--channel`              | see env                               | Installed browser channel: `chrome`, `msedge`, … (`SYNMAX_PLAYWRIGHT_CHANNEL`)         |
+| `--no-reduce-automation` | off                                   | Skip Playwright tweaks that hide automation hints (rarely needed)                      |
+
 
 **Cloudflare / Turnstile:** NM OCD often serves a **“Verify you are human”** interstitial (Turnstile). **Headless** runs usually **cannot** complete it, so the loader will fail fast with `stage=cloudflare` instead of waiting the full timeout.
 
@@ -60,7 +62,7 @@ What works in practice:
 
 1. **Visible browser:** `synmax-load-wells ... --headful` (or `SYNMAX_PLAYWRIGHT_HEADLESS=false`). Complete the checkbox in the window; the loader then waits for the real well page.
 2. **Persistent profile:** set `--user-data-dir .playwright_profile` or `SYNMAX_PLAYWRIGHT_USER_DATA_DIR=.playwright_profile`. Solve Turnstile **once**; later rows may reuse the saved cookie for that profile. Add `.playwright_profile/` to `.gitignore` if you use a folder in the repo.
-3. **If the checkbox shows “Verification failed”:** Playwright’s **bundled Chromium** is often detected. Install **Google Chrome** or **Edge**, then run with **`--channel chrome`** or **`--channel msedge`** (still **`--headful`**, still a **real** click). Example:
+3. **If the checkbox shows “Verification failed”:** Playwright’s **bundled Chromium** is often detected. Install **Google Chrome** or **Edge**, then run with `**--channel chrome`** or `**--channel msedge`** (still `**--headful**`, still a **real** click). Example:
 
 ```bash
 synmax-load-wells --csv apis_pythondev_test.csv --db sqlite.db --delay 0.75 ^
@@ -105,19 +107,19 @@ uvicorn synmax_takehome.api.main:app --reload --host 127.0.0.1 --port 8000
 
 ### Sample requests (curl)
 
-1) Health check
+1. Health check
 
 ```bash
 curl http://127.0.0.1:8000/health
 ```
 
-2) Get one well by API
+1. Get one well by API
 
 ```bash
 curl "http://127.0.0.1:8000/well?api=30-015-25471"
 ```
 
-3) Polygon search
+1. Polygon search
 
 The API expects the polygon as a string containing `(lat,lon)` pairs (the format shown in the take-home PDF).
 
@@ -127,6 +129,7 @@ curl -G "http://127.0.0.1:8000/search/polygon" ^
 ```
 
 Notes:
+
 - `/well` returns `404` if the API number is not in the database.
 - `/search/polygon` returns a JSON array of matching API numbers.
 
@@ -145,3 +148,4 @@ Environment:
 - `SYNMAX_PLAYWRIGHT_USER_DATA_DIR` — optional Chromium user-data folder for cookie persistence (pairs well with `--headful` after one Turnstile solve)
 - `SYNMAX_PLAYWRIGHT_CHANNEL` — e.g. `chrome` or `msedge` (use installed browser; often fixes Turnstile “Verification failed” with bundled Chromium)
 - `SYNMAX_PLAYWRIGHT_REDUCE_AUTOMATION_FLAGS` — `true` / `false` (default `true` when headed: drops `--enable-automation` and uses `AutomationControlled` tweak)
+

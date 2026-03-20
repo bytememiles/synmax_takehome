@@ -26,7 +26,7 @@ def _parse_polygon_points(points: str) -> list[tuple[float, float]]:
     return [(nums[i], nums[i + 1]) for i in range(0, len(nums), 2)]
 
 
-@router.get("/polygon", response_class=list)
+@router.get("/polygon", response_model=list[str])
 def polygon(points: str, conn=Depends(get_db_conn)) -> list[str]:
     """Return a list of API numbers within the provided polygon."""
     try:

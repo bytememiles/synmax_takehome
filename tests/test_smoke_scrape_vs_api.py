@@ -57,6 +57,14 @@ def test_scrape_and_api_match_for_each_saved_well(html_path: Path) -> None:
     finally:
         conn.close()
 
+    # `/well` returns a `WellRecord` model; convert to dict with aliases so it matches
+    # `scraped_record` (which uses `by_alias=True`).
+    api_record_dict = (
+        api_record.model_dump(by_alias=True)
+        if hasattr(api_record, "model_dump")
+        else api_record
+    )
+
     # Friendly terminal logs (shown with `pytest -s`)
     print(
         "match={api}".format(api=api),
@@ -65,15 +73,15 @@ def test_scrape_and_api_match_for_each_saved_well(html_path: Path) -> None:
         "| operator={o}".format(o=scraped_record.get("Operator")),
     )
 
-    if scraped_record != api_record:
+    if scraped_record != api_record_dict:
         mismatched_keys = sorted(
             k
             for k in scraped_record.keys()
-            if scraped_record.get(k) != api_record.get(k)
+            if scraped_record.get(k) != api_record_dict.get(k)
         )
         print("DIFF api={api} keys={keys}".format(api=api, keys=mismatched_keys))
 
-    assert scraped_record == api_record
+    assert scraped_record == api_record_dict
 
 
 def test_polygon_endpoint_matches_generated_csv() -> None:

@@ -11,7 +11,7 @@ async def _lifespan(_app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(
         title="SynMax take-home",
-        description="NM well data API (Part 2 wires routers here).",
+        description="NM well data API",
         lifespan=_lifespan,
     )
 
