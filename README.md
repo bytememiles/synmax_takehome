@@ -20,6 +20,17 @@ playwright install chromium
 
 Loads each API from a CSV you name with `--csv` (filename or path; must include an `api` column). The take-home’s sample list is `apis_pythondev_test.csv`. Results go into `sqlite.db` table `api_well_data`.
 
+Deliverables note:
+
+- `apis_pythondev_test.csv` is the **input** list of API numbers to scrape.
+- `polygon_api_numbers.csv` is the **required output** list of API numbers returned by your Part 2 polygon endpoint for the fixed polygon in the take-home PDF.
+
+You can (re)generate `polygon_api_numbers.csv` from your `sqlite.db` using:
+
+```bash
+synmax-generate-polygon-csv --db sqlite.db --out polygon_api_numbers.csv
+```
+
 ```bash
 # --csv = your input list (replace the filename with yours if needed)
 synmax-load-wells --csv apis_pythondev_test.csv --db sqlite.db --delay 0.75
@@ -56,6 +67,22 @@ synmax-load-wells --csv apis_pythondev_test.csv --db sqlite.db --delay 0.75 ^
   --headful --channel chrome --user-data-dir .playwright_profile
 ```
 
+**Windows quick start (Command Prompt):**
+
+```bat
+set SYNMAX_PLAYWRIGHT_HEADLESS=false
+set SYNMAX_PLAYWRIGHT_CHANNEL=chrome
+set SYNMAX_PLAYWRIGHT_USER_DATA_DIR=.playwright_profile
+
+synmax-load-wells --csv apis_pythondev_test.csv --db sqlite.db --delay 0.75 --headful
+```
+
+**Recommended command (single copy/paste):**
+
+```bat
+synmax-load-wells --csv apis_pythondev_test.csv --db sqlite.db --delay 0.75 --headful --channel chrome --user-data-dir .playwright_profile
+```
+
 Other things that help: stable **home/residential** IP (VPN/datacenter IPs get blocked), disable aggressive VPN/browser privacy extensions for that window, wait until the iframe finishes loading before clicking, use **Troubleshoot / Refresh** on the widget if offered.
 
 Always follow the site’s terms and don’t attempt to bypass protections.
@@ -66,13 +93,42 @@ Always follow the site’s terms and don’t attempt to bypass protections.
 pytest tests/test_parse.py -q
 ```
 
-## Part 2: API (placeholder)
+## Part 2: API
+
+### Host the server locally
+
+Make sure `sqlite.db` is present in the repo root (or set `SYNMAX_SQLITE_PATH`).
 
 ```bash
-uvicorn synmax_takehome.api.main:app --reload
+uvicorn synmax_takehome.api.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Routers under `synmax_takehome.api.routers` will be wired in Part 2.
+### Sample requests (curl)
+
+1) Health check
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+2) Get one well by API
+
+```bash
+curl "http://127.0.0.1:8000/well?api=30-015-25471"
+```
+
+3) Polygon search
+
+The API expects the polygon as a string containing `(lat,lon)` pairs (the format shown in the take-home PDF).
+
+```bash
+curl -G "http://127.0.0.1:8000/search/polygon" ^
+  --data-urlencode "points=[(32.81,-104.19),(32.66,-104.32),(32.54,-104.24),(32.50,-104.03),(32.73,-104.01),(32.79,-103.91),(32.84,-104.05),(32.81,-104.19)]"
+```
+
+Notes:
+- `/well` returns `404` if the API number is not in the database.
+- `/search/polygon` returns a JSON array of matching API numbers.
 
 ## Layout
 

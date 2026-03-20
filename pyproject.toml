@@ -24,6 +24,7 @@ dev = ["pytest>=8.0"]
 
 [project.scripts]
 synmax-load-wells = "synmax_takehome.cli.load_wells:main"
+synmax-generate-polygon-csv = "synmax_takehome.cli.generate_polygon_csv:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

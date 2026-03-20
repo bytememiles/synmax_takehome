@@ -20,9 +20,10 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     # Part 2:
-    # from synmax_takehome.api.routers import spatial, wells
-    # app.include_router(wells.router)
-    # app.include_router(spatial.router)
+    from synmax_takehome.api.routers import spatial, wells
+
+    app.include_router(wells.router)
+    app.include_router(spatial.router)
 
     return app
 
